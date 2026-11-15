@@ -1,7 +1,26 @@
+# ExternalName Services create a DNS CNAME, which must point to a hostname, not an IP.
+# Cloud SQL public IP is an IP address, so use a selector-less Service + EndpointSlice instead.
 apiVersion: v1
 kind: Service
 metadata:
   name: mysql-externalname-service
 spec:
-  type: ExternalName
-  externalName: 35.226.81.153
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: mysql-externalname-service-1
+  labels:
+    kubernetes.io/service-name: mysql-externalname-service
+addressType: IPv4
+ports:
+  - name: mysql
+    port: 3306
+    protocol: TCP
+endpoints:
+  - addresses:
+      - 34.122.64.219
